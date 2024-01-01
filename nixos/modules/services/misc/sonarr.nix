@@ -12,7 +12,7 @@ in
 
       dataDir = mkOption {
         type = types.str;
-        default = "/var/lib/sonarr/.config/NzbDrone";
+        default = "/var/lib/sonarr/.config/Sonarr";
         description = lib.mdDoc "The directory where Sonarr stores its data files.";
       };
 
@@ -54,7 +54,7 @@ in
         Type = "simple";
         User = cfg.user;
         Group = cfg.group;
-        ExecStart = "${cfg.package}/bin/NzbDrone -nobrowser -data='${cfg.dataDir}'";
+        ExecStart = "${cfg.package}/bin/Sonarr -nobrowser -data='${cfg.dataDir}'";
         Restart = "on-failure";
       };
     };

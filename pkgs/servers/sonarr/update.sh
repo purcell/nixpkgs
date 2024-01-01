@@ -5,3 +5,5 @@ latestTag=$(curl https://api.github.com/repos/Sonarr/Sonarr/tags | jq -r '.[] | 
 version="$(expr $latestTag : 'v\(.*\)')"
 
 update-source-version sonarr "$version"
+
+$(nix-build . -A sonarr.fetch-deps --no-out-link)

@@ -1,28 +1,27 @@
-{ lib, stdenv, fetchurl, mono, libmediainfo, sqlite, curl, makeWrapper, nixosTests }:
+{ lib
+, fetchFromGitHub
+, nixosTests
+, buildDotnetModule
+, dotnetCorePackages
+}:
 
-stdenv.mkDerivation rec {
+buildDotnetModule rec {
   pname = "sonarr";
-  version = "3.0.10.1567";
+  version = "4.0.0.748";
 
-  src = fetchurl {
-    url = "https://download.sonarr.tv/v3/main/${version}/Sonarr.main.${version}.linux.tar.gz";
-    hash = "sha256-6zdp/Bg+9pcrElW5neB+BC16Vn1VhTjhMRRIxGrKhxc=";
+  src = fetchFromGitHub {
+    owner = "Sonarr";
+    repo = "Sonarr";
+    rev = "v${version}";
+    sha256 = "sha256-BTufEb4JNiu82cfqagn4Yl6HBScYgb/3pRJlALICV+0=";
   };
 
-  nativeBuildInputs = [ makeWrapper ];
-
-  installPhase = ''
-    runHook preInstall
-
-    mkdir -p $out/bin
-    cp -r * $out/bin/
-    makeWrapper "${mono}/bin/mono" $out/bin/NzbDrone \
-      --add-flags "$out/bin/Sonarr.exe" \
-      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [
-          curl sqlite libmediainfo ]}
-
-    runHook postInstall
-  '';
+  projectFile = "src/Sonarr.sln";
+  executables = [ "Sonarr" ];
+  nugetDeps = ./nuget-deps.nix;
+  dotnet-sdk = dotnetCorePackages.sdk_6_0;
+  dotnet-runtime = dotnetCorePackages.aspnetcore_6_0;
+  dotnetBuildFlags = [ "--no-self-contained" ];
 
   passthru = {
     updateScript = ./update.sh;
@@ -34,7 +33,7 @@ stdenv.mkDerivation rec {
     homepage = "https://sonarr.tv/";
     license = lib.licenses.gpl3Only;
     maintainers = with lib.maintainers; [ fadenb purcell ];
-    mainProgram = "NzbDrone";
+    mainProgram = "Sonarr";
     platforms = lib.platforms.all;
   };
 }
